@@ -1,5 +1,9 @@
 import Navigation from "../_components/Navigation";
 
+export const metadata = {
+  title: "Guest area",
+};
+
 export default function Page() {
   return (
     <div>
