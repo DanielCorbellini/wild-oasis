@@ -36,6 +36,16 @@ export async function getCabinPrice(id) {
   return data;
 }
 
+export async function getCountCabins() {
+  const { count, error } = await supabase
+    .from("cabins")
+    .select("", { count: "exact" });
+
+  if (error) console.error(error);
+
+  return count;
+}
+
 export const getCabins = async function () {
   const { data, error } = await supabase
     .from("cabins")
