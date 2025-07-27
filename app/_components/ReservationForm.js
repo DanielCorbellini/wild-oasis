@@ -1,5 +1,9 @@
+"use client";
+
+import { useReservation } from "./ReservationContext";
+
 function ReservationForm({ cabin }) {
-  // CHANGE
+  const { range } = useReservation();
   const { maxCapacity } = cabin;
 
   return (
@@ -54,7 +58,7 @@ function ReservationForm({ cabin }) {
         <div className="flex justify-end items-center gap-6">
           <p className="text-primary-300 text-base">Start by selecting dates</p>
 
-          <button className="bg-accent-500 px-8 py-4 text-primary-800 font-semibold hover:bg-accent-600 transition-all disabled:cursor-not-allowed disabled:bg-gray-500 disabled:text-gray-300">
+          <button className="bg-accent-500 px-8 py-4 text-primary-800 font-semibold hover:bg-accent-600 transition-all disabled:cursor-not-allowed disabled:bg-gray-500 disabled:text-gray-300 cursor-pointer">
             Reserve now
           </button>
         </div>
