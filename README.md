@@ -38,6 +38,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 # Tecnologies
 
 - Next.js (Framework)
-- Conext API (UI Stage management)
+- Context API (UI Stage management)
 - supabase (DB/API)
 - tailwindcss (Styling)
