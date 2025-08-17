@@ -28,6 +28,10 @@ const authConfig = {
     async session({ session, user }) {
       const guest = await getGuest(session.user.email);
       session.user.guestId = guest.id;
+      session.user.fullName = guest.fullName;
+      session.user.nationality = guest.nationality;
+      session.user.countryFlag = guest.countryFlag;
+      session.user.nationalID = guest.nationalID;
       return session;
     },
   },
