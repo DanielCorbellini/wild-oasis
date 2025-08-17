@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { auth, signIn, signOut } from "./auth";
 import { updateGuest } from "./data-service";
 
@@ -23,4 +24,7 @@ export async function updateGuestProfile(formData) {
 
   const updateData = { nationality, countryFlag, nationalID };
   updateGuest(session.user.guestId, updateData);
+
+  // revalidate the cache
+  revalidatePath("/account/profile");
 }
