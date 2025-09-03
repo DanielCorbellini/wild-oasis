@@ -1,43 +1,116 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# The Wild Oasis — Website
 
-## Getting Started
+A small Next.js App Router site showcasing luxury cabins with booking/reservation flows, built with Tailwind CSS, Supabase (storage/auth), Heroicons and react-day-picker.
 
-First, run the development server:
+## Tech stack
+
+- Next.js (App Router)
+- React
+- Tailwind CSS
+- Supabase (storage / auth / actions)
+- react-day-picker
+- Heroicons
+
+## Features
+
+- Static and dynamic cabin pages (app/cabins/[cabinId]/page.js)
+- Server-side data fetching helpers (getCabins, getCabin)
+- Reservation UI with date range picker
+- Profile update action (server action)
+- Image delivery from Supabase storage (next.config.mjs configured)
+
+## Prerequisites
+
+- Node.js 18+ (recommended)
+- npm or pnpm
+- Next.js 13.4+ (App Router features like searchParams and generateMetadata)
+- Supabase project (if using remote images/auth)
+
+## Quick start
+
+1. Install
+
+```bash
+npm install
+```
+
+2. Local development
 
 ```bash
 npm run dev
 # or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+next dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. Build for production
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```bash
+npm run build
+# or
+next build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. (Optional) Static export
+   If you enable `output: "export"` in `next.config.mjs` you must ensure every dynamic route has a working `generateStaticParams()` that returns all paths at build time, and any external data (Supabase) is available during build.
 
-## Learn More
+```bash
+next build
+next export
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Required environment variables
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+If using Supabase or remote services, set these in your environment (or in a .env.local):
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- SUPABASE_URL
+- SUPABASE_ANON_KEY
+- (any other custom vars used by app/\_lib/data-service or actions)
 
-## Deploy on Vercel
+## Tailwind notes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Arbitrary values like `min-h-[400px]` are supported by default in Tailwind v3+. No extra config needed unless you changed safelist/purge rules.
+- If you see "Unknown at rule @tailwind" ensure PostCSS is configured and Tailwind is included in your PostCSS pipeline.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## next.config.mjs
 
-# Tecnologies
+`next.config.mjs` contains remotePatterns for Supabase storage. Adjust the hostname/path if you use a different storage bucket.
 
-- Next.js (Framework)
-- Context API (UI Stage management)
-- supabase (DB/API)
-- tailwindcss (Styling)
+## Troubleshooting
+
+- Build error: "Page ... is missing generateStaticParams() so it cannot be used with output: export"
+
+  - Ensure `generateStaticParams()` exists for dynamic routes and returns objects with keys matching the dynamic segment (e.g. `{ cabinId: "1" }` for `[cabinId]`).
+  - Make sure `getCabins()` returns a non-empty array during build and environment variables are available at build time.
+
+- "Failed to collect page data for /cabins/[cabinId]"
+
+  - Add defensive checks in `generateMetadata()` and the page component for missing data. Example:
+    ```js
+    const cabin = await getCabin(params.cabinId);
+    if (!cabin) throw new Error("Cabin not found");
+    ```
+  - Log `getCabins()`/`getCabin()` outputs during build to debug.
+
+- `searchParams` usage
+
+  - `searchParams` is available in server components via the page function signature:
+    ```js
+    export default function Page({ searchParams }) {
+      const filter = searchParams?.capacity ?? "all";
+    }
+    ```
+  - For client components, use `useSearchParams()` from `next/navigation`.
+
+- Optional chaining
+  - Expressions like `session?.user?.image` safely access nested properties without throwing when some parts are null/undefined.
+
+## Project structure (high level)
+
+- app/
+  - cabins/ (list + dynamic cabin page)
+  - \_components/ (shared UI components)
+  - error.js (error boundary)
+  - page.js (root pages)
+- next.config.mjs
+- tailwind.config.js
+- package.json
