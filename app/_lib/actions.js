@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { auth, signIn, signOut } from "./auth";
-import { deleteBooking, updateGuest } from "./data-service";
+import { deleteBooking, updateBooking, updateGuest } from "./data-service";
+import { redirect } from "next/navigation";
 
 export async function signInAction() {
   await signIn("google", { redirectTo: "/account" });
@@ -36,4 +37,22 @@ export async function deleteReservation(bookingId) {
   deleteBooking(bookingId, session.user.guestId);
 
   revalidatePath("/account/reservations");
+}
+
+export async function updateReservation(formData) {
+  const session = await auth();
+  if (!session) throw new Error("You must be logged in");
+
+  const numGuests = Number(formData.get("numGuests"));
+  const observations = formData.get("observations").slice(0, 1000);
+  const reservationId = formData.get("reservationId");
+
+  updateBooking(reservationId, session.user.guestId, {
+    numGuests,
+    observations,
+  });
+
+  revalidatePath(`/account/reservations/edit/${reservationId}`);
+  revalidatePath(`/account/reservations/`);
+  redirect("/account/reservations");
 }

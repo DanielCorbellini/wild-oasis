@@ -36,6 +36,21 @@ export async function getCabinPrice(id) {
   return data;
 }
 
+export async function getCabinWithBookingInfo(reservationId) {
+  const { data, error } = await supabase
+    .from("bookings")
+    .select(`numGuests, observations, cabins (*)`)
+    .eq("id", reservationId)
+    .single();
+
+  if (error) {
+    console.error(error);
+    throw new Error("Cabin could not be loaded");
+  }
+
+  return data;
+}
+
 export async function getCountCabins() {
   const { count, error } = await supabase
     .from("cabins")
@@ -207,11 +222,17 @@ export async function updateGuest(id, updatedFields) {
   return data;
 }
 
-export async function updateBooking(id, updatedFields) {
+export async function updateBooking(id, guestId, updatedFields) {
+  let today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+  today = today.toISOString();
+
   const { data, error } = await supabase
     .from("bookings")
     .update(updatedFields)
     .eq("id", id)
+    .eq("guestId", guestId)
+    .gt("startDate", today)
     .select()
     .single();
 
@@ -219,6 +240,12 @@ export async function updateBooking(id, updatedFields) {
     console.error(error);
     throw new Error("Booking could not be updated");
   }
+
+  if (!data || data.length === 0)
+    throw new Error(
+      "Booking not found or you don't have permission to delete it"
+    );
+
   return data;
 }
 
