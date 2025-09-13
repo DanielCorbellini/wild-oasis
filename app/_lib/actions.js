@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { auth, signIn, signOut } from "./auth";
-import { updateGuest } from "./data-service";
+import { deleteBooking, updateGuest } from "./data-service";
 
 export async function signInAction() {
   await signIn("google", { redirectTo: "/account" });
@@ -27,4 +27,13 @@ export async function updateGuestProfile(formData) {
 
   // revalidate the cache
   revalidatePath("/account/profile");
+}
+
+export async function deleteReservation(bookingId) {
+  const session = await auth();
+  if (!session) throw new Error("You must be logged in");
+
+  deleteBooking(bookingId, session.user.guestId);
+
+  revalidatePath("/account/reservations");
 }

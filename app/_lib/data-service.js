@@ -225,12 +225,22 @@ export async function updateBooking(id, updatedFields) {
 /////////////
 // DELETE
 
-export async function deleteBooking(id) {
-  const { data, error } = await supabase.from("bookings").delete().eq("id", id);
+export async function deleteBooking(id, guestId) {
+  const { data, error } = await supabase
+    .from("bookings")
+    .delete()
+    .eq("id", id)
+    .eq("guestId", guestId);
 
   if (error) {
     console.error(error);
     throw new Error("Booking could not be deleted");
   }
+
+  if (!data || data.length === 0)
+    throw new Error(
+      "Booking not found or you don't have permission to delete it"
+    );
+
   return data;
 }
