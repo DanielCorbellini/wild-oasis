@@ -9,6 +9,7 @@ import {
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { useReservation } from "./ReservationContext";
+import { useMemo } from "react";
 
 function isAlreadyBooked(range, datesArr) {
   return (
@@ -32,6 +33,16 @@ function DateSelector({ settings, cabin, bookedDates }) {
   // SETTINGS
   const { minBookingLength, maxBookingLength } = settings;
 
+  const bookedSet = useMemo(
+    () => new Set(bookedDates.map((d) => d.toISOString().slice(0, 10))),
+    [bookedDates]
+  );
+
+  const isDisabled = (curDate) => {
+    const key = curDate.toISOString().slice(0, 10);
+    return isPast(curDate) || bookedSet.has(key);
+  };
+
   return (
     <div className="flex flex-col justify-between">
       <DayPicker
@@ -49,10 +60,7 @@ function DateSelector({ settings, cabin, bookedDates }) {
         toYear={new Date().getFullYear() + 5}
         captionLayout="dropdown"
         numberOfMonths={2}
-        disabled={(curDate) =>
-          isPast(curDate) ||
-          bookedDates.some((date) => isSameDay(date, curDate))
-        }
+        disabled={isDisabled}
       />
 
       <div className="flex items-center justify-between px-8 bg-accent-500 text-primary-800 h-[72px]">
